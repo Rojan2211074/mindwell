@@ -62,8 +62,8 @@
             $res=mysqli_query($this->conn,$sql);
             if($res){
                 echo"UPDATED";
-                    header("location:admin/logout.php");    
-
+                header("location:admin/logout.php");    
+            
             }
 
                 

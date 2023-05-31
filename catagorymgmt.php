@@ -43,7 +43,37 @@
 
 <div class="row">
 <div class="col-xxl-8"> <!-- 60% width -->
-CAT  </div>
+<h2>CATAGORIES</h2>
+<table class="table table-500px table-hover">
+  <thead>
+    <tr>
+      <th scope="col">CatagoryID</th>
+      <th scope="col">Name</th>
+      <th scope="col">Discription</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php
+    $datas=$categories->viewCategory();
+    while($row=mysqli_fetch_assoc($datas)){
+
+
+    
+    ?>
+    <tr>
+      <td><?php echo $row['id']?></td>
+      <td><?php echo $row['name']?></td>
+      <td><?php echo $row['description']?></td>
+      <td><?php echo "<a href='editdeletecategory.php?id=".$row['id']."&action=edit' class='btn btn-primary'>EDIT</a>";?><?php echo "<a href='deleteCatagory.php?id=".$row['id']."&action=delete' class='btn btn-danger px-2 mx-2'>DELETE</a>";?></td>
+    </tr>
+<?php 
+    }
+?>
+  </tbody>
+</table>
+</div>
+
 <div class="col-xxl-4"> <!-- 40% width -->
 
 <h2>ADD NEW CATAGORY</h2> 

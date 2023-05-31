@@ -1,5 +1,26 @@
-<?php session_start(); ?>
+<?php session_start(); 
+include_once('c_posts.php');
+?>
+<?PHP
+if(isset($_POST['post'])){
+  $uid=$_SESSION['userid'];
+  $title=$_POST['title'];
+  $cid=$_POST['category_id'];
+  $description=$_POST['descirption'];
+  $imgname=$_FILES["postpic"]["name"];
+  //to capture the image size
+  $size=$_FILES["postpic"]["size"];
+  //to capture the image type
+  $type=$_FILES["postpic"]["type"];
+  //to capture the temporary name
+  $tmpname=$_FILES["postpic"]["tmp_name"];
+  //file upload location
+  $uploadlocation="uploads/posts/".$imgname;
+  $posts->addPost($uid,$cid,$title,$description,$imgname,$tmpname,$uploadlocation);
+  
 
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -18,30 +39,7 @@
 
 </style>
 <body>
-<?php
-    include_once("c_posts.php");
-    if(isset($_POST['update'])){
-        $uid=$_GET['id'];
-        $nusername=$_POST['name'];
-        $nemail=$_POST['email'];
-        $noldphoto=$_POST['oldimage'];
-        $nimgname=$_FILES["newprofile"]["name"];
-        $nuploadlocation="uploads/profiles/".$nimgname;
 
-        $ntmpname=$_FILES["newprofile"]["tmp_name"];
-
-        if (!empty($nimgname)) {
-            // File is submitted, process the file upload
-            $users->updateUser($uid, $nusername, $nemail, $noldphoto, $nuploadlocation, $nimgname, $ntmpname);
-        } else {
-            // File is not submitted, update other fields without file upload
-            $users->updateUserNoFile($uid, $nusername, $nemail);}
-
-
-
-
-    }
-    ?>
   <header>
     <?php include_once("incl_header.php")?>
   </header>
@@ -55,9 +53,120 @@
 
 <div class="row">
 <div class="col-xxl-8"> <!-- 60% width -->
-Manage your POSTS  </div>
+<H2>Manage your POSTS  </H2>
+<?php
+if($_SESSION['userrole']=='admin'){
+  //admin function
+echo '<table class="table table-500px table-hover">
+  <thead>
+    <tr>
+      <th scope="col">PostId</th>
+      <th scope="col">Title</th>
+      <th scope="col">UserId</th>
+      <th scope="col">IMAGE</th>
+      <th scope="col">Description</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>';
+
+$datas = $posts->viewPostAdmin();
+while ($row = mysqli_fetch_assoc($datas)) {
+  echo '
+    <tr>
+      <td>' . $row['id'] . '</td>
+      <td>' . $row['title'] . '</td>
+      <td>' . $row['user_id'] . '</td>
+      <td><img width="200px" height="200px" style="object-fit:cover;" src="uploads/posts/' . $row['featureimg'] . '"></td>
+
+      <td>' . $row['description'] . '</td>
+      <td>
+        <a href="editPost.php?id=' . $row['id'] . '&action=edit" class="btn btn-primary">EDIT</a>
+        <a href="deletePost.php?id=' . $row['id'] . '&action=delete" class="btn btn-danger px-2 mx-2">DELETE</a>
+      </td>
+    </tr>';
+}
+
+echo '
+  </tbody>
+</table>';
+}else{
+  echo '<table class="table table-500px table-hover">
+  <thead>
+    <tr>
+      <th scope="col">PostId</th>
+      <th scope="col">Title</th>
+      <th scope="col">UserId</th>
+      <th scope="col">IMAGE</th>
+      <th scope="col">Description</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>';
+$uid=$_SESSION['userid'];
+
+$datas = $posts->viewPost($uid);
+while ($row = mysqli_fetch_assoc($datas)) {
+  echo '
+    <tr>
+      <td>' . $row['id'] . '</td>
+      <td>' . $row['title'] . '</td>
+      <td>' . $row['user_id'] . '</td>
+      <td><img width="200px" height="200px" style="object-fit:cover;" src="uploads/posts/' . $row['featureimg'] . '"></td>
+
+      <td>' . $row['description'] . '</td>
+      <td>
+        <a href="editpost.php?id=' . $row['id'] . '&action=edit" class="btn btn-primary">EDIT</a>
+        <a href="deletePost.php?id=' . $row['id'] . '&action=delete" class="btn btn-danger px-2 mx-2">DELETE</a>
+      </td>
+    </tr>';
+}
+
+echo '
+  </tbody>
+</table>';
+
+
+}
+?>
+
+</div>
 <div class="col-xxl-4"> <!-- 40% width -->
-<h1>add your post</h1> 
+<h1>add your post</h1>
+<form action="" method="POST" enctype="multipart/form-data">
+    <label for="Title">Enter our post title</label>
+    <br>
+    <input type="text" name="title">
+    <br>
+    <label for="Title">Catagory</label>
+    <br>
+    <select name='category_id'>
+                <?php
+                $sql="SELECT * FROM category ORDER BY id DESC";
+                include("connection.php");
+                $qry=mysqli_query($conn, $sql) or die(mysqli_error($conn));
+                while($row=mysqli_fetch_array($qry))
+                {
+               
+                echo "<option value=".$row['id']."> ".$row['name']."</option>";
+                
+                 }
+                ?>
+    </select>
+    <br>
+    <input type="file" name="postpic" require>
+    <br>
+    <label for="descirption">DESCRIPTION</label>
+    <br>
+    <textarea type="text" name="descirption" cols=50 rows="7"></textarea>
+        
+    <br>
+    <input type="submit" class="btn btn-success" name="post" value="POST">
+    <br>
+
+
+
+</form>
 
 </div>
 </div>
